@@ -100,3 +100,66 @@ void drawBoard(sf::RenderWindow &window)
         window.draw(ring);
     }
 }
+bool loadLevel()
+{
+
+    ifstream fin("level.txt");
+    if (!fin.is_open())
+    {
+        cout << "Error: Cannot open level.txt!" << endl;
+        return false;
+    }
+
+    int rows, cols,count=0;
+
+    
+    if (!(fin >> rows >> cols) || (rows!=8 || cols!=8))
+    {
+        cout << "Invalid dimensions!" << endl;
+        return false;
+    }
+
+    if(!(fin>>moves>>targetscore) || (targetscore<0 || moves<0))
+    {
+        cout<<"invalid target score or moves";
+        return false;
+        
+    }
+    
+    for (int r = 0; r < 8; r++)
+    {
+        for (int c = 0; c < 8; c++)
+        {
+            if(!(fin>>board[r][c]))
+            {
+                cout<<"not conatins 64 values";
+                return false;
+            }
+        }
+    }
+    for(int r=0;r<8;r++)
+    {
+        for(int c=0;c<8;c++)
+        {
+            if(board[r][c]>=1 && board[r][c]<=6)
+            {
+                count++;
+            }
+            else if(board[r][c]<1 || board[r][c]>6)
+            {
+                cout<<"invalid candies";
+                return false;
+            }
+        }
+    }
+    if(count==64)
+    {
+        cout<<"all candies reaad";
+    }
+    
+    
+
+    fin.close();
+    return true;
+}
+
