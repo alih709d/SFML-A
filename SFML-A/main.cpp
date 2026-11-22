@@ -163,3 +163,58 @@ bool loadLevel()
     return true;
 }
 
+void selecting_swapping(int x,int y,int board[8][8])
+{
+    int col;
+    int row;
+    int temp;
+    
+    if(x<100 || x>=580 || y<100 ||y>=580)
+    {
+        cout<<"ivalid positions";
+        return;
+    }
+    col=(x-100)/60;
+    row=(y-100)/60;
+    if(selrow==-1 || selcol==-1)
+    {
+        cout<<"no candy selected yet";
+        selcol=col;
+        selrow=row;
+    }
+    else 
+    {
+        if((row ==selrow-1 && col==selcol)|| (row==selrow+1 && col==selcol)||(col==selcol+1&& row==selrow)||(col==selcol-1&& row==selrow))
+        {
+            swapRow1 = selrow;
+            swapCol1 = selcol;
+
+            swapRow2 = row;
+            swapCol2 = col;
+            temp=board[selrow][selcol];
+            board[selrow][selcol]=board[row][col];
+            board[row][col]=temp;
+            cout<<"neighbour";
+            selcol=-1;
+            selrow=-1;
+    
+
+        }
+        else
+        {
+            cout<<"not neigghbour";
+             
+            selrow=row;
+            selcol=col;
+
+        }
+           
+    
+    }
+    
+
+
+}
+
+
+
