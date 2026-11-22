@@ -218,3 +218,78 @@ void selecting_swapping(int x,int y,int board[8][8])
 
 
 
+void removecandies(int board[8][8],int&score, int marked[][8])
+{
+    int r,c;
+    for(r=0;r<8;r++)
+    {
+        for(c=0;c<8;c++)
+        {
+            if(marked[r][c]==true)
+            {
+                board[r][c]=0;
+                score  +=10;
+                marked[r][c]=false;
+
+
+            }
+            
+        }
+    }
+
+}
+void fallingcandies(int board[8][8])
+{
+    int r,c;
+    for(c=7;c>=0;c--)
+    {
+        int writerow=7;
+        for(r=7;r>=0;r--)
+        {
+            if(board[r][c]!=0)
+            {
+                board[writerow][c]=board[r][c];
+                if(r != writerow)
+                {
+                board[r][c]=0;
+                }
+                writerow--;
+            }
+            
+
+        }
+        
+    }
+
+}
+void refilling(int board[8][8])
+{
+    int r,c;
+    for(r=0;r<8;r++)
+    {
+        for(c=0;c<8;c++)
+        {
+            if(board[r][c]==0)
+            {
+                board[r][c]=rand()%6+1;
+            }
+        }
+    }
+
+}
+int matches=findmatches(board,marked);
+
+
+while(matches)
+{
+   
+    removecandies(board,score, marked);
+    fallingcandies(board);
+    refilling(board);
+    matches=findmatches(board,marked);
+
+
+
+
+    
+}
