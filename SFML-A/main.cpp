@@ -9,10 +9,9 @@ using namespace std;
 // Constants
 const int ROWS = 8;
 const int COLS = 8;
-const int CELL_SIZE = 60;
-const int BOARD_X = 100;
+const int CELL_SIZE = 70;
+const int BOARD_X = 20;
 const int BOARD_Y = 100;
-
 // Shared game variables
 int board[ROWS][COLS];
 int moves;
@@ -61,14 +60,17 @@ void drawBoard(sf::RenderWindow &window)
 
             // Calculate candy position
             candy.setPosition(sf::Vector2f(
-                BOARD_X + c * CELL_SIZE + 8,
-                BOARD_Y + r * CELL_SIZE + 8
+                BOARD_X + c * CELL_SIZE + 13,
+                BOARD_Y + r * CELL_SIZE + 13
             ));
 
             window.draw(candy);
 
             // Draw cell border
-            sf::RectangleShape cell(sf::Vector2f(60.f, 60.f));
+            sf::RectangleShape cell(sf::Vector2f(
+                static_cast<float>(CELL_SIZE),
+               static_cast<float>(CELL_SIZE)
+            ));
 
             cell.setPosition(sf::Vector2f(
                 BOARD_X + c * CELL_SIZE,
@@ -93,8 +95,8 @@ void drawBoard(sf::RenderWindow &window)
         ring.setOutlineThickness(3.f);
 
         ring.setPosition(sf::Vector2f(
-            BOARD_X + selcol * CELL_SIZE + 5,
-            BOARD_Y + selrow * CELL_SIZE + 5
+            BOARD_X + selcol * CELL_SIZE + 10,
+            BOARD_Y + selrow * CELL_SIZE + 10
         ));
 
         window.draw(ring);
@@ -169,13 +171,13 @@ void selecting_swapping(int x,int y,int board[8][8])
     int row;
     int temp;
     
-    if(x<100 || x>=580 || y<100 ||y>=580)
+    if (x < BOARD_X || x >= BOARD_X + COLS * CELL_SIZE ||
+    y < BOARD_Y || y >= BOARD_Y + ROWS * CELL_SIZE)
     {
-        cout<<"ivalid positions";
         return;
     }
-    col=(x-100)/60;
-    row=(y-100)/60;
+    col = (x - BOARD_X) / CELL_SIZE;
+    row = (y - BOARD_Y) / CELL_SIZE;
     if(selrow==-1 || selcol==-1)
     {
         cout<<"no candy selected yet";
@@ -277,19 +279,19 @@ void refilling(int board[8][8])
     }
 
 }
-int matches=findmatches(board,marked);
 
-
-while(matches)
+void processMatches()
 {
-   
-    removecandies(board,score, marked);
-    fallingcandies(board);
-    refilling(board);
-    matches=findmatches(board,marked);
+    int matches = findMatches(board, marked);
 
+    while(matches > 0)
+    {
+        removecandies(board, score, marked);
 
+        fallingcandies(board);
 
+        refilling(board);
 
-    
+        matches = findMatches(board, marked);
+    }
 }
