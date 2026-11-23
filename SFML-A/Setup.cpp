@@ -353,11 +353,76 @@ void readEvents(sf::RenderWindow& window)
 
 
 
-// =============================================================================
-//  FEATURE 1 - Game window and game loop (5 marks)             Owner: Ali
-//  600x680 window titled "Candy Crush", frame limit 60 (2) | loop calls your own
-//  input, update, draw functions in that order (2) | X button ends the program (1)
-// =============================================================================
+void handleInput(sf::RenderWindow& window)
+{
+    readEvents(window);
+    switch (gameState)
+    {
+    case MENU:
+        handleMenuInput();
+        break;
+
+    case PLAYING:
+        if (clicked)
+        {
+            handleBoardClick(clickX, clickY);
+           
+        }
+        break;
+
+    case GAME_OVER:
+        handleGameOverInput();
+        
+        break;
+
+    }
+}
+ void updateGame()
+ {
+     switch (gameState)
+     {
+     case MENU:
+             break;
+
+     case PLAYING:
+                 break;
+
+     case GAME_OVER:
+         break;
+     }
+
+ }
+
+ void drawGame(sf::RenderWindow & window)
+ {
+
+     window.clear(sf::Color(20, 20, 50));
+     switch(gameState)
+     {
+    case MENU:
+        
+
+        drawMenu(window);
+
+        break;
+    case PLAYING:
+            drawHUD(window);
+            drawBoard(window);
+
+            break;
+
+    case GAME_OVER:
+        drawGameOver(window);
+            break;
+     }
+        
+     window.display();
+   
+    
+ }
+    
+
+
 // TODO: write handleInput(window), updateGame(), drawGame(window) here.
 //   - handleInput calls readEvents(window), then reacts per gameState (switch)
 //   - drawGame clears the window, draws the current screen using drawMenu /
@@ -568,11 +633,11 @@ void clearSave()
 
 
 
-// =============================================================================
-//  main() - belongs to the Feature 1 owner
-// =============================================================================
 int main()
 {
+
+   
+
     srand((unsigned)time(0));
 
     if (!font.openFromFile("C:/Windows/Fonts/arial.ttf"))
@@ -581,7 +646,14 @@ int main()
     fillTestBoard();                    // TEMPORARY, remove when loadLevel works
     gameState = PLAYING;                // TEMPORARY, so you can see the board; start in MENU later
 
-    // TODO (Feature 1): window, frame limit and the game loop go here.
+    sf::RenderWindow window(sf::VideoMode({ 600, 680 }), "Candy Crush");
+    window.setFramerateLimit(60);
+
+    while (window.isOpen())
+    {
+        
+         
+    }
 
     return 0;
 }
