@@ -328,8 +328,14 @@ void readEvents(sf::RenderWindow& window)
 
     while (const std::optional event = window.pollEvent())
     {
-        // TODO (Feature 1): if the event is sf::Event::Closed, close the window.
-        // The pattern is in section 2.1 of the assignment.
+
+
+        if(event->is<sf::Event::Closed>())
+        {
+            window.close();
+        }
+
+        
 
         if (const auto* mouse = event->getIf<sf::Event::MouseButtonPressed>())
         {
@@ -351,7 +357,7 @@ void readEvents(sf::RenderWindow& window)
 }
 
 
-
+// Feature 1
 
 void handleInput(sf::RenderWindow& window)
 {
@@ -423,18 +429,10 @@ void handleInput(sf::RenderWindow& window)
     
 
 
-// TODO: write handleInput(window), updateGame(), drawGame(window) here.
-//   - handleInput calls readEvents(window), then reacts per gameState (switch)
-//   - drawGame clears the window, draws the current screen using drawMenu /
-//     drawHUD + drawBoard / drawGameOver, then displays
-// TODO: the window, frame limit and loop itself go in main() at the bottom.
-// TODO: handling the Closed event goes in readEvents above.
-
-
 
 
 // =============================================================================
-//  FEATURE 2 - Board from level.txt (15 marks)                 Owner: ________
+//  FEATURE 2 - Board from level.txt (15 marks)                 Owner: Bodla
 //  load level.txt into board (5) | drawn with nested loops (done, in drawBoard) |
 //  every candy number has its own colour (done) | missing file shows an error (2)
 // =============================================================================
@@ -451,7 +449,7 @@ bool loadLevel()
 
 
 // =============================================================================
-//  FEATURE 3 - Selecting and swapping (10 marks)               Owner: ________
+//  FEATURE 3 - Selecting and swapping (10 marks)               Owner: Bodla
 //  click selects with a ring, clicks outside the board ignored (3) |
 //  2nd click swaps with a NEIGHBOUR only, else selects the new candy (3) |
 //  a swap that makes no match is swapped back and uses no move (4)
@@ -651,7 +649,9 @@ int main()
 
     while (window.isOpen())
     {
-        
+        handleInput(window);
+        updateGame();
+        drawGame(window);
          
     }
 
