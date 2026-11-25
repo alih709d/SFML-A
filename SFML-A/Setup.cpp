@@ -22,13 +22,17 @@
 //                 until findMatches finds nothing; points via addScore (Feature 6)
 //   then checkWinLose (Feature 6) -> endGame (Feature 7) if the game is over
 // =============================================================================
-
+#include<iostream>
 #include <SFML/Graphics.hpp>
 #include <cstdint>
 #include <cstdlib>
 #include <ctime>
 #include <optional>
 #include <string>
+#include<fstream>
+#include <cstdlib>
+
+
 using namespace std;
 
 
@@ -40,6 +44,11 @@ const float BOARD_X = 20.f, BOARD_Y = 100.f;
 
 const int MENU = 0, PLAYING = 1, GAME_OVER = 2;                      // game states
 const int NO_KEY = 0, KEY_UP = 1, KEY_DOWN = 2, KEY_ENTER = 3, KEY_ESCAPE = 4;
+int board[ROWS][COLS];
+int moves;
+int targetscore;
+int score = 0;
+
 
 
 // ============================== SHARED GAME DATA ==============================
@@ -328,8 +337,14 @@ void readEvents(sf::RenderWindow& window)
 
     while (const std::optional event = window.pollEvent())
     {
-        // TODO (Feature 1): if the event is sf::Event::Closed, close the window.
-        // The pattern is in section 2.1 of the assignment.
+
+
+        if(event->is<sf::Event::Closed>())
+        {
+            window.close();
+        }
+
+        
 
         if (const auto* mouse = event->getIf<sf::Event::MouseButtonPressed>())
         {
@@ -351,25 +366,82 @@ void readEvents(sf::RenderWindow& window)
 }
 
 
+// Feature 1
+
+void handleInput(sf::RenderWindow& window)
+{
+    readEvents(window);
+    switch (gameState)
+    {
+    case MENU:
+        handleMenuInput();
+        break;
+
+    case PLAYING:
+        if (clicked)
+        {
+            handleBoardClick(clickX, clickY);
+           
+        }
+        break;
+
+    case GAME_OVER:
+        handleGameOverInput();
+        
+        break;
+
+    }
+}
+ void updateGame()
+ {
+     switch (gameState)
+     {
+     case MENU:
+             break;
+
+     case PLAYING:
+                 break;
+
+     case GAME_OVER:
+         break;
+     }
+
+ }
+
+ void drawGame(sf::RenderWindow & window)
+ {
+
+     window.clear(sf::Color(20, 20, 50));
+     switch(gameState)
+     {
+    case MENU:
+        
+
+        drawMenu(window);
+
+        break;
+    case PLAYING:
+            drawHUD(window);
+            drawBoard(window);
+
+            break;
+
+    case GAME_OVER:
+        drawGameOver(window);
+            break;
+     }
+        
+     window.display();
+   
+    
+ }
+    
+
+
 
 
 // =============================================================================
-//  FEATURE 1 - Game window and game loop (5 marks)             Owner: Ali
-//  600x680 window titled "Candy Crush", frame limit 60 (2) | loop calls your own
-//  input, update, draw functions in that order (2) | X button ends the program (1)
-// =============================================================================
-// TODO: write handleInput(window), updateGame(), drawGame(window) here.
-//   - handleInput calls readEvents(window), then reacts per gameState (switch)
-//   - drawGame clears the window, draws the current screen using drawMenu /
-//     drawHUD + drawBoard / drawGameOver, then displays
-// TODO: the window, frame limit and loop itself go in main() at the bottom.
-// TODO: handling the Closed event goes in readEvents above.
-
-
-
-
-// =============================================================================
-//  FEATURE 2 - Board from level.txt (15 marks)                 Owner: ________
+//  FEATURE 2 - Board from level.txt (15 marks)                 Owner: Bodla
 //  load level.txt into board (5) | drawn with nested loops (done, in drawBoard) |
 //  every candy number has its own colour (done) | missing file shows an error (2)
 // =============================================================================
@@ -378,15 +450,73 @@ void readEvents(sf::RenderWindow& window)
 // The starting board must not have three in a row anywhere.
 bool loadLevel()
 {
-    // TODO
-    return false;
+
+    ifstream fin("level.txt");
+    if (!fin.is_open())
+    {
+        cout << "Error: Cannot open level.txt!" << endl;
+        return false;
+    }
+
+    int rows, cols,count=0;
+
+    
+    if (!(fin >> rows >> cols) || (rows!=8 || cols!=8))
+    {
+        cout << "Invalid dimensions!" << endl;
+        return false;
+    }
+
+    if(!(fin>>moves>>targetscore) || (targetscore<0 || moves<0))
+    {
+        cout<<"invalid target score or moves";
+        return false;
+        
+    }
+    
+    for (int r = 0; r < 8; r++)
+    {
+        for (int c = 0; c < 8; c++)
+        {
+            if(!(fin>>board[r][c]))
+            {
+                cout<<"not conatins 64 values";
+                return false;
+            }
+        }
+    }
+    for(int r=0;r<8;r++)
+    {
+        for(int c=0;c<8;c++)
+        {
+            if(board[r][c]>=1 && board[r][c]<=6)
+            {
+                count++;
+            }
+            else if(board[r][c]<1 || board[r][c]>6)
+            {
+                cout<<"invalid candies";
+                return false;
+            }
+        }
+    }
+    if(count==64)
+    {
+        cout<<"all candies reaad";
+    }
+    
+    
+
+    fin.close();
+    return true;
 }
 
 
 
 
+
 // =============================================================================
-//  FEATURE 3 - Selecting and swapping (10 marks)               Owner: ________
+//  FEATURE 3 - Selecting and swapping (10 marks)               Owner: Bodla
 //  click selects with a ring, clicks outside the board ignored (3) |
 //  2nd click swaps with a NEIGHBOUR only, else selects the new candy (3) |
 //  a swap that makes no match is swapped back and uses no move (4)
@@ -568,11 +698,11 @@ void clearSave()
 
 
 
-// =============================================================================
-//  main() - belongs to the Feature 1 owner
-// =============================================================================
 int main()
 {
+
+   
+
     srand((unsigned)time(0));
 
     if (!font.openFromFile("C:/Windows/Fonts/arial.ttf"))
@@ -581,7 +711,16 @@ int main()
     fillTestBoard();                    // TEMPORARY, remove when loadLevel works
     gameState = PLAYING;                // TEMPORARY, so you can see the board; start in MENU later
 
-    // TODO (Feature 1): window, frame limit and the game loop go here.
+    sf::RenderWindow window(sf::VideoMode({ 600, 680 }), "Candy Crush");
+    window.setFramerateLimit(60);
+
+    while (window.isOpen())
+    {
+        handleInput(window);
+        updateGame();
+        drawGame(window);
+         
+    }
 
     return 0;
 }
