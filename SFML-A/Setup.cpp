@@ -534,6 +534,48 @@ void selecting_swapping(int x,int y,int board[8][8])
     {
         return;
     }
+    col = (x - BOARD_X) / CELL_SIZE;
+    row = (y - BOARD_Y) / CELL_SIZE;
+    if(selrow==-1 || selcol==-1)
+    {
+        cout<<"no candy selected yet";
+        selcol=col;
+        selrow=row;
+    }
+    else 
+    {
+        if((row ==selrow-1 && col==selcol)|| (row==selrow+1 && col==selcol)||(col==selcol+1&& row==selrow)||(col==selcol-1&& row==selrow))
+        {
+            swapRow1 = selrow;
+            swapCol1 = selcol;
+
+            swapRow2 = row;
+            swapCol2 = col;
+            temp=board[selrow][selcol];
+            board[selrow][selcol]=board[row][col];
+            board[row][col]=temp;
+            cout<<"neighbour";
+            selcol=-1;
+            selrow=-1;
+    
+
+        }
+        else
+        {
+            cout<<"not neigghbour";
+             
+            selrow=row;
+            selcol=col;
+
+        }
+           
+    
+    }
+    
+
+
+}
+
 
 
 
