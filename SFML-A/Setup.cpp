@@ -39,7 +39,7 @@ using namespace std;
 // ============================== SHARED CONSTANTS ==============================
 const int WIN_W = 600, WIN_H = 680;
 const int ROWS = 8, COLS = 8;
-const float CELL = 70.f;
+const float CELL_SIZE = 70.f;
 const float BOARD_X = 20.f, BOARD_Y = 100.f;
 
 const int MENU = 0, PLAYING = 1, GAME_OVER = 2;                      // game states
@@ -48,6 +48,16 @@ int board[ROWS][COLS];
 int moves;
 int targetscore;
 int score = 0;
+
+int selrow = -1;
+int selcol = -1;
+
+int swapRow1 = -1;
+int swapCol1 = -1;
+int swapRow2 = -1;
+int swapCol2 = -1;
+
+
 
 
 
