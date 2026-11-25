@@ -614,10 +614,27 @@ int findMatches(bool marked[ROWS][COLS])
 //  empty cells at the top refilled randomly (4) | chains repeat until no matches (8)
 // =============================================================================
 // Sets every marked cell to 0 (and gives points through addScore).
-void removeMarked(bool marked[ROWS][COLS])
+void removecandies(int board[8][8],int&score, int marked[][8])
 {
-    // TODO
+    int r,c;
+    for(r=0;r<8;r++)
+    {
+        for(c=0;c<8;c++)
+        {
+            if(marked[r][c]==true)
+            {
+                board[r][c]=0;
+                score  +=10;
+                marked[r][c]=false;
+
+
+            }
+            
+        }
+    }
+
 }
+
 
 // In every column, candies above gaps fall down.
 void dropCandies()
