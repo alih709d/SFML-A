@@ -671,10 +671,38 @@ void fallingcandies(int board[8][8])
 
 // Repeats find / remove / drop / refill until findMatches finds nothing.
 // The whole chain uses only the one move already taken.
-void resolveChain()
+void refilling(int board[8][8])
 {
-    // TODO
+    int r,c;
+    for(r=0;r<8;r++)
+    {
+        for(c=0;c<8;c++)
+        {
+            if(board[r][c]==0)
+            {
+                board[r][c]=rand()%6+1;
+            }
+        }
+    }
+
 }
+
+void processMatches()
+{
+    int matches = findMatches(board, marked);
+
+    while(matches > 0)
+    {
+        removecandies(board, score, marked);
+
+        fallingcandies(board);
+
+        refilling(board);
+
+        matches = findMatches(board, marked);
+    }
+}
+
 
 
 
