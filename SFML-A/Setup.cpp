@@ -523,27 +523,18 @@ bool loadLevel()
 // =============================================================================
 // Turns a click in pixels into a row and column. Returns false if the click is
 // outside the board (x < 20 or >= 580, y < 100 or >= 660).
-bool cellFromClick(int px, int py, int& row, int& col)
+void selecting_swapping(int x,int y,int board[8][8])
 {
-    // TODO
-    return false;
-}
+    int col;
+    int row;
+    int temp;
+    
+    if (x < BOARD_X || x >= BOARD_X + COLS * CELL_SIZE ||
+    y < BOARD_Y || y >= BOARD_Y + ROWS * CELL_SIZE)
+    {
+        return;
+    }
 
-// Swaps the two candies. If it makes no match, swaps back and returns false.
-// If it makes a match, keeps the swap and returns true.
-bool trySwap(int r1, int c1, int r2, int c2)
-{
-    // TODO (uses findMatches from Feature 4)
-    return false;
-}
-
-// Called from handleInput when the player clicked while PLAYING.
-// First click selects (selRow/selCol), second click on a neighbour tries the swap.
-// After a kept swap: useMove(), resolveChain(), checkWinLose().
-void handleBoardClick(int px, int py)
-{
-    // TODO
-}
 
 
 
