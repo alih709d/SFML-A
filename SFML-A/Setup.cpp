@@ -643,9 +643,30 @@ void dropCandies()
 }
 
 // Every cell still 0 at the top of a column gets a random candy 1..6.
-void refillBoard()
+
+void fallingcandies(int board[8][8])
 {
-    // TODO
+    int r,c;
+    for(c=7;c>=0;c--)
+    {
+        int writerow=7;
+        for(r=7;r>=0;r--)
+        {
+            if(board[r][c]!=0)
+            {
+                board[writerow][c]=board[r][c];
+                if(r != writerow)
+                {
+                board[r][c]=0;
+                }
+                writerow--;
+            }
+            
+
+        }
+        
+    }
+
 }
 
 // Repeats find / remove / drop / refill until findMatches finds nothing.
