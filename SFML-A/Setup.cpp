@@ -601,7 +601,30 @@ void selecting_swapping(int x,int y,int board[8][8])
 // Does NOT remove anything. Empty cells (0) never match.
 int findMatches(bool marked[ROWS][COLS])
 {
-    return 0;
+    for (int r = 0; r < ROWS; r++)
+        for (int c = 0; c < COLS; c++)
+            marked[r][c] = false;
+    for (int r = 0; r < ROWS; r++)
+        for (int c = 0; c + 2 < COLS; c++)
+        {
+            int v = board[r][c];
+            if (v != 0 && board[r][c + 1] == v && board[r][c + 2] == v)
+                marked[r][c] = marked[r][c + 1] = marked[r][c + 2] = true;
+        }
+    for (int c = 0; c < COLS; c++)
+        for (int r = 0; r + 2 < ROWS; r++)
+        {
+            int v = board[r][c];
+            if (v != 0 && board[r + 1][c] == v && board[r + 2][c] == v)
+                marked[r][c] = marked[r + 1][c] = marked[r + 2][c] = true;
+        }
+    int count = 0;
+    for (int r = 0; r < ROWS; r++)
+        for (int c = 0; c < COLS; c++)
+            if (marked[r][c])
+                count++;
+
+    return count;
 }
 
 
