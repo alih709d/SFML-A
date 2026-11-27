@@ -567,26 +567,74 @@ void checkWinLose()
 // nothing selected, then gameState = PLAYING. Show errorMessage if loading fails.
 void startNewGame()
 {
-    // TODO
+    score = 0;
+    //loadLevel();
+    fillTestBoard();
+    selRow = -1;
+    selCol = -1;
+    gameState = PLAYING;
 }
 
 // MENU state: Up/Down change menuChoice, Enter runs New Game / Continue / Exit.
 // Continue with no save: set noSavedGame = true and stay on the menu.
 void handleMenuInput()
 {
-    // TODO
+   
+    if (pressedKey == KEY_UP && menuChoice > 0)
+    {
+        menuChoice--;
+    }
+    else if (pressedKey == KEY_DOWN && menuChoice < 2)
+    {
+        menuChoice++;
+    }
+        else if (pressedKey == KEY_ENTER)
+        {
+
+            if (menuChoice == 0)
+            {
+                startNewGame();
+            }
+            else if (menuChoice == 1)
+            {
+                
+                if (loadGame())
+                {
+                    gameState = PLAYING;
+                }
+                else
+                {
+                    noSavedGame = true;
+                }
+
+
+
+            }
+            else if (menuChoice == 2)
+            {
+                exit(0);
+            }
+
+        }
+        
+       
 }
 
 // GAME_OVER state: Enter goes back to the menu.
 void handleGameOverInput()
 {
-    // TODO
+    if (pressedKey == KEY_ENTER)
+    {
+        gameState = MENU;
+    }
 }
 
 // Sets playerWon, empties the save (clearSave) and switches to GAME_OVER.
 void endGame(bool won)
 {
-    // TODO
+    playerWon = won;
+    clearSave();
+    gameState = GAME_OVER;
 }
 
 
@@ -641,8 +689,8 @@ int main()
     if (!font.openFromFile("C:/Windows/Fonts/arial.ttf"))
         return 1;                       // font missing (Windows path); change if needed
 
-    fillTestBoard();                    // TEMPORARY, remove when loadLevel works
-    gameState = PLAYING;                // TEMPORARY, so you can see the board; start in MENU later
+                      
+    gameState = MENU;                // TEMPORARY, so you can see the board; start in MENU later
 
     sf::RenderWindow window(sf::VideoMode({ 600, 680 }), "Candy Crush");
     window.setFramerateLimit(60);
