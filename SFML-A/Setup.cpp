@@ -110,6 +110,18 @@ bool loadGame();                                            // Feature 8
 void clearSave();                                           // Feature 8
 
 
+<<<<<<< HEAD
+=======
+// TEMPORARY: only so you can see the drawing work before loadLevel exists.
+// Delete this function (and its call in main) when Feature 2 is done.
+void fillTestBoard()
+{
+    for (int r = 0; r < ROWS; r++)
+        for (int c = 0; c < COLS; c++)
+            board[r][c] = (r * 3 + c * 2) % 6 + 1;
+    score = 0; movesleftLeft = 20; targetscore = 800;
+}
+>>>>>>> 0a18372cc0149140c457320a9d48d6073f1c89b6
 
 
 // =============================================================================
@@ -440,7 +452,19 @@ void handleInput(sf::RenderWindow& window)
 
 
 
+<<<<<<< HEAD
 //feature 2
+=======
+
+// =============================================================================
+//  FEATURE 2 - Board from level.txt (15 marks)                 Owner: Bodla
+//  load level.txt into board (5) | drawn with nested loops (done, in drawBoard) |
+//  every candy number has its own colour (done) | missing file shows an error (2)
+// =============================================================================
+// Reads rows/cols, then movesleft and target score, then the board into board[r][c].
+// Returns false (and sets errorMessage) if level.txt cannot be opened.
+// The starting board must not have three in a row anywhere.
+>>>>>>> 0a18372cc0149140c457320a9d48d6073f1c89b6
 bool loadLevel()
 {
 
@@ -513,6 +537,7 @@ void selecting_swapping(int x,int y,int board[8][8])
     int col;
     int row;
     int temp;
+<<<<<<< HEAD
     // to keep in dimension
     if (x < BOARD_X || x >= BOARD_X + COLS * CELL ||
     y < BOARD_Y || y >= BOARD_Y + ROWS * CELL) 
@@ -520,6 +545,14 @@ void selecting_swapping(int x,int y,int board[8][8])
         return;
     }
     // to give exact row and col location of user click
+=======
+    
+    if (x < BOARD_X || x >= BOARD_X + COLS * CELL ||
+    y < BOARD_Y || y >= BOARD_Y + ROWS * CELL)
+    {
+        return;
+    }
+>>>>>>> 0a18372cc0149140c457320a9d48d6073f1c89b6
     col = (x - BOARD_X) / CELL;
     row = (y - BOARD_Y) / CELL;
     if(selrow==-1 || selcol==-1)
@@ -619,7 +652,28 @@ void removecandies(int board[8][8],int&score, bool marked[][8])
 }
 
 
+<<<<<<< HEAD
 
+=======
+// In every column, candies above gaps fall down.
+void dropCandies()
+{
+    for (int c = 0; c < COLS; c++)
+    {
+        int writeRow = ROWS - 1;
+        for (int r = ROWS - 1; r >= 0; r--)
+        {
+            if (board[r][c] != 0)
+            {
+                board[writeRow][c] = board[r][c];
+                if (writeRow != r)
+                    board[r][c] = 0;
+                writeRow--;
+            }
+        }
+    }
+}
+>>>>>>> 0a18372cc0149140c457320a9d48d6073f1c89b6
 
 // Every cell still 0 at the top of a column gets a random candy 1..6.
 
@@ -724,9 +778,15 @@ void checkWinLose()
 void startNewGame()
 {
     score = 0;
+<<<<<<< HEAD
     loadLevel();
 
     selrow = -1;
+=======
+    //loadLevel();
+    fillTestBoard();
+    selRow = -1;
+>>>>>>> 0a18372cc0149140c457320a9d48d6073f1c89b6
     selCol = -1;
     gameState = PLAYING;
 }
