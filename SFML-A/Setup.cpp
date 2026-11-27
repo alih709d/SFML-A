@@ -39,13 +39,13 @@ using namespace std;
 // ============================== SHARED CONSTANTS ==============================
 const int WIN_W = 600, WIN_H = 680;
 const int ROWS = 8, COLS = 8;
-const float CELL_SIZE = 70.f;
+const float CELL = 70.f;
 const float BOARD_X = 20.f, BOARD_Y = 100.f;
 
 const int MENU = 0, PLAYING = 1, GAME_OVER = 2;                      // game states
 const int NO_KEY = 0, KEY_UP = 1, KEY_DOWN = 2, KEY_ENTER = 3, KEY_ESCAPE = 4;
 int board[ROWS][COLS];
-int moves;
+int movesleft;
 int targetscore;
 int score = 0;
 
@@ -63,8 +63,8 @@ int swapCol2 = -1;
 
 // ============================== SHARED GAME DATA ==============================
 int board[ROWS][COLS];            // 0 = empty, 1..6 = fruit types
-int score = 0, movesLeft = 0, targetScore = 0;
-int selRow = -1, selCol = -1;     // -1 = nothing selected
+int score = 0, movesleftLeft = 0, targetscore = 0;
+int selrow = -1, selCol = -1;     // -1 = nothing selected
 int gameState = MENU;
 int menuChoice = 0;               // 0 New Game, 1 Continue, 2 Exit
 bool playerWon = false;
@@ -110,15 +110,6 @@ bool loadGame();                                            // Feature 8
 void clearSave();                                           // Feature 8
 
 
-// TEMPORARY: only so you can see the drawing work before loadLevel exists.
-// Delete this function (and its call in main) when Feature 2 is done.
-void fillTestBoard()
-{
-    for (int r = 0; r < ROWS; r++)
-        for (int c = 0; c < COLS; c++)
-            board[r][c] = (r * 3 + c * 2) % 6 + 1;
-    score = 0; movesLeft = 20; targetScore = 800;
-}
 
 
 // =============================================================================
@@ -293,7 +284,7 @@ void drawBoard(sf::RenderWindow& window)
             float cy = BOARD_Y + r * CELL + CELL / 2;
             if (board[r][c] != 0)
                 drawFruit(window, board[r][c], cx, cy);
-            if (r == selRow && c == selCol)
+            if (r == selrow && c == selcol)
                 drawSelectionRing(window, cx, cy);
         }
     }
@@ -309,8 +300,8 @@ void drawHUD(sf::RenderWindow& window)
     window.draw(panel);
 
     drawText(window, "SCORE: " + to_string(score), 30, 36, 22, sf::Color::White);
-    drawText(window, "MOVES: " + to_string(movesLeft), 240, 36, 22, sf::Color(255, 220, 50));
-    drawText(window, "TARGET: " + to_string(targetScore), 420, 36, 22, sf::Color(120, 230, 120));
+    drawText(window, "movesleft: " + to_string(movesleftLeft), 240, 36, 22, sf::Color(255, 220, 50));
+    drawText(window, "TARGET: " + to_string(targetscore), 420, 36, 22, sf::Color(120, 230, 120));
 }
 
 void drawMenu(sf::RenderWindow& window)
@@ -449,15 +440,7 @@ void handleInput(sf::RenderWindow& window)
 
 
 
-
-// =============================================================================
-//  FEATURE 2 - Board from level.txt (15 marks)                 Owner: Bodla
-//  load level.txt into board (5) | drawn with nested loops (done, in drawBoard) |
-//  every candy number has its own colour (done) | missing file shows an error (2)
-// =============================================================================
-// Reads rows/cols, then moves and target score, then the board into board[r][c].
-// Returns false (and sets errorMessage) if level.txt cannot be opened.
-// The starting board must not have three in a row anywhere.
+//feature 2
 bool loadLevel()
 {
 
@@ -477,9 +460,9 @@ bool loadLevel()
         return false;
     }
 
-    if(!(fin>>moves>>targetscore) || (targetscore<0 || moves<0))
+    if(!(fin>>movesleft>>targetscore) || (targetscore<0 || movesleft<0))
     {
-        cout<<"invalid target score or moves";
+        cout<<"invalid target score or movesleft";
         return false;
         
     }
@@ -524,35 +507,28 @@ bool loadLevel()
 
 
 
-
-// =============================================================================
-//  FEATURE 3 - Selecting and swapping (10 marks)               Owner: Bodla
-//  click selects with a ring, clicks outside the board ignored (3) |
-//  2nd click swaps with a NEIGHBOUR only, else selects the new candy (3) |
-//  a swap that makes no match is swapped back and uses no move (4)
-// =============================================================================
-// Turns a click in pixels into a row and column. Returns false if the click is
-// outside the board (x < 20 or >= 580, y < 100 or >= 660).
+//feature 3
 void selecting_swapping(int x,int y,int board[8][8])
 {
     int col;
     int row;
     int temp;
-    
-    if (x < BOARD_X || x >= BOARD_X + COLS * CELL_SIZE ||
-    y < BOARD_Y || y >= BOARD_Y + ROWS * CELL_SIZE)
+    // to keep in dimension
+    if (x < BOARD_X || x >= BOARD_X + COLS * CELL ||
+    y < BOARD_Y || y >= BOARD_Y + ROWS * CELL) 
     {
         return;
     }
-    col = (x - BOARD_X) / CELL_SIZE;
-    row = (y - BOARD_Y) / CELL_SIZE;
+    // to give exact row and col location of user click
+    col = (x - BOARD_X) / CELL;
+    row = (y - BOARD_Y) / CELL;
     if(selrow==-1 || selcol==-1)
     {
         cout<<"no candy selected yet";
         selcol=col;
         selrow=row;
     }
-    else 
+    else // check right left above below
     {
         if((row ==selrow-1 && col==selcol)|| (row==selrow+1 && col==selcol)||(col==selcol+1&& row==selrow)||(col==selcol-1&& row==selrow))
         {
@@ -590,31 +566,38 @@ void selecting_swapping(int x,int y,int board[8][8])
 
 
 
-
-// =============================================================================
-//  FEATURE 4 - Finding matches (10 marks)                      Owner: ________
-//  matches in rows (3) | matches in columns (3) |
-//  all candies of a match marked in a separate array, incl. 4, 5 and L/T shapes (4)
-// =============================================================================
-// Sets marked[r][c] = true for every candy that is part of 3 or more in a row or
-// column (clear the whole marked array to false first). Returns how many were marked.
-// Does NOT remove anything. Empty cells (0) never match.
 int findMatches(bool marked[ROWS][COLS])
 {
-    // TODO
-    return 0;
+    for (int r = 0; r < ROWS; r++)
+        for (int c = 0; c < COLS; c++)
+            marked[r][c] = false;
+    for (int r = 0; r < ROWS; r++)
+        for (int c = 0; c + 2 < COLS; c++)
+        {
+            int v = board[r][c];
+            if (v != 0 && board[r][c + 1] == v && board[r][c + 2] == v)
+                marked[r][c] = marked[r][c + 1] = marked[r][c + 2] = true;
+        }
+    for (int c = 0; c < COLS; c++)
+        for (int r = 0; r + 2 < ROWS; r++)
+        {
+            int v = board[r][c];
+            if (v != 0 && board[r + 1][c] == v && board[r + 2][c] == v)
+                marked[r][c] = marked[r + 1][c] = marked[r + 2][c] = true;
+        }
+    int count = 0;
+    for (int r = 0; r < ROWS; r++)
+        for (int c = 0; c < COLS; c++)
+            if (marked[r][c])
+                count++;
+
+    return count;
 }
 
 
 
 
-// =============================================================================
-//  FEATURE 5 - Clearing, falling and refilling (25 marks)      Owner: Ali
-//  marked candies removed, 10 points each (5) | candies fall in every column (8) |
-//  empty cells at the top refilled randomly (4) | chains repeat until no matches (8)
-// =============================================================================
-// Sets every marked cell to 0 (and gives points through addScore).
-void removecandies(int board[8][8],int&score, int marked[][8])
+void removecandies(int board[8][8],int&score, bool marked[][8])
 {
     int r,c;
     for(r=0;r<8;r++)
@@ -636,11 +619,7 @@ void removecandies(int board[8][8],int&score, int marked[][8])
 }
 
 
-// In every column, candies above gaps fall down.
-void dropCandies()
-{
-    // TODO
-}
+
 
 // Every cell still 0 at the top of a column gets a random candy 1..6.
 
@@ -689,7 +668,8 @@ void refilling(int board[8][8])
 
 void processMatches()
 {
-    int matches = findMatches(board, marked);
+    bool marked[ROWS][COLS];
+    int matches = findMatches(marked);
 
     while(matches > 0)
     {
@@ -699,7 +679,7 @@ void processMatches()
 
         refilling(board);
 
-        matches = findMatches(board, marked);
+        matches = findMatches(marked);
     }
 }
 
@@ -743,26 +723,74 @@ void checkWinLose()
 // nothing selected, then gameState = PLAYING. Show errorMessage if loading fails.
 void startNewGame()
 {
-    // TODO
+    score = 0;
+    loadLevel();
+
+    selrow = -1;
+    selCol = -1;
+    gameState = PLAYING;
 }
 
 // MENU state: Up/Down change menuChoice, Enter runs New Game / Continue / Exit.
 // Continue with no save: set noSavedGame = true and stay on the menu.
 void handleMenuInput()
 {
-    // TODO
+   
+    if (pressedKey == KEY_UP && menuChoice > 0)
+    {
+        menuChoice--;
+    }
+    else if (pressedKey == KEY_DOWN && menuChoice < 2)
+    {
+        menuChoice++;
+    }
+        else if (pressedKey == KEY_ENTER)
+        {
+
+            if (menuChoice == 0)
+            {
+                startNewGame();
+            }
+            else if (menuChoice == 1)
+            {
+                
+                if (loadGame())
+                {
+                    gameState = PLAYING;
+                }
+                else
+                {
+                    noSavedGame = true;
+                }
+
+
+
+            }
+            else if (menuChoice == 2)
+            {
+                exit(0);
+            }
+
+        }
+        
+       
 }
 
 // GAME_OVER state: Enter goes back to the menu.
 void handleGameOverInput()
 {
-    // TODO
+    if (pressedKey == KEY_ENTER)
+    {
+        gameState = MENU;
+    }
 }
 
 // Sets playerWon, empties the save (clearSave) and switches to GAME_OVER.
 void endGame(bool won)
 {
-    // TODO
+    playerWon = won;
+    clearSave();
+    gameState = GAME_OVER;
 }
 
 
@@ -774,7 +802,7 @@ void endGame(bool won)
 //  score, moves, target and board (3) | "No saved game" shown, save emptied
 //  when a game ends (1)
 // =============================================================================
-// Format: line 1 = score movesLeft targetScore, then the 8 board rows (8 numbers each).
+// Format: line 1 = score movesLeft targetscore, then the 8 board rows (8 numbers each).
 void saveGame()
 {
     // TODO
@@ -817,8 +845,8 @@ int main()
     if (!font.openFromFile("C:/Windows/Fonts/arial.ttf"))
         return 1;                       // font missing (Windows path); change if needed
 
-    fillTestBoard();                    // TEMPORARY, remove when loadLevel works
-    gameState = PLAYING;                // TEMPORARY, so you can see the board; start in MENU later
+                      
+    gameState = MENU;                // TEMPORARY, so you can see the board; start in MENU later
 
     sf::RenderWindow window(sf::VideoMode({ 600, 680 }), "Candy Crush");
     window.setFramerateLimit(60);
