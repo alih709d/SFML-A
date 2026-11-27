@@ -46,10 +46,6 @@ const int MENU = 0, PLAYING = 1, GAME_OVER = 2;                      // game sta
 const int NO_KEY = 0, KEY_UP = 1, KEY_DOWN = 2, KEY_ENTER = 3, KEY_ESCAPE = 4;
 int board[ROWS][COLS];
 int movesleft;
-int targetscore;
-int score = 0;
-
-int selrow = -1;
 int selcol = -1;
 
 int swapRow1 = -1;
@@ -62,7 +58,6 @@ int swapCol2 = -1;
 
 
 // ============================== SHARED GAME DATA ==============================
-int board[ROWS][COLS];            // 0 = empty, 1..6 = fruit types
 int score = 0, movesleftLeft = 0, targetscore = 0;
 int selrow = -1, selCol = -1;     // -1 = nothing selected
 int gameState = MENU;
@@ -695,20 +690,24 @@ void processMatches()
 // 10 points for every candy cleared, chains included.
 void addScore(int clearedCandies)
 {
-    // TODO
+    score += clearedCandies * 10;
 }
 
 // Called once for every swap that makes a match.
 void useMove()
 {
-    // TODO
+    if (movesleft > 0)
+        movesleft--;
 }
 
 // Called after a move AND all its chains are finished.
 // Target reached -> endGame(true). Else no moves left -> endGame(false).
 void checkWinLose()
 {
-    // TODO
+    if (score >= targetscore)
+        endGame(true);
+    else if (movesleft <= 0)
+        endGame(false);
 }
 
 
