@@ -5,7 +5,7 @@
 //  HOW TO WORK ON THIS FILE
 //   1. Git > Pull BEFORE you start. Commit + Push when a function works.
 //   2. Write code ONLY inside your own feature section(s). Leave the rest alone.
-//   3. Do NOT au/to-format the whole file (it changes every line and causes conflicts).
+//   3. Do NOT auto-format the whole file (it changes every line and causes conflicts).
 //   4. Never commit code that does not compile.
 //   5. Everything marked "provided" is only drawing / reading keys (allowed AI help).
 //      All game logic is written by the team.
@@ -46,10 +46,6 @@ const int MENU = 0, PLAYING = 1, GAME_OVER = 2;                      // game sta
 const int NO_KEY = 0, KEY_UP = 1, KEY_DOWN = 2, KEY_ENTER = 3, KEY_ESCAPE = 4;
 int board[ROWS][COLS];
 int movesleft;
-int targetscore;
-int score = 0;
-
-int selrow = -1;
 int selcol = -1;
 
 int swapRow1 = -1;
@@ -62,7 +58,6 @@ int swapCol2 = -1;
 
 
 // ============================== SHARED GAME DATA ==============================
-int board[ROWS][COLS];            // 0 = empty, 1..6 = fruit types
 int score = 0, movesleftLeft = 0, targetscore = 0;
 int selrow = -1, selCol = -1;     // -1 = nothing selected
 int gameState = MENU;
@@ -110,15 +105,6 @@ bool loadGame();                                            // Feature 8
 void clearSave();                                           // Feature 8
 
 
-// TEMPORARY: only so you can see the drawing work before loadLevel exists.
-// Delete this function (and its call in main) when Feature 2 is done.
-void fillTestBoard()
-{
-    for (int r = 0; r < ROWS; r++)
-        for (int c = 0; c < COLS; c++)
-            board[r][c] = (r * 3 + c * 2) % 6 + 1;
-    score = 0; movesleftLeft = 20; targetscore = 800;
-}
 
 
 // =============================================================================
@@ -449,15 +435,7 @@ void drawGame(sf::RenderWindow& window)
 
 
 
-
-// =============================================================================
-//  FEATURE 2 - Board from level.txt (15 marks)                 Owner: Bodla
-//  load level.txt into board (5) | drawn with nested loops (done, in drawBoard) |
-//  every candy number has its own colour (done) | missing file shows an error (2)
-// =============================================================================
-// Reads rows/cols, then movesleft and target score, then the board into board[r][c].
-// Returns false (and sets errorMessage) if level.txt cannot be opened.
-// The starting board must not have three in a row anywhere.
+//feature 2
 bool loadLevel()
 {
 
@@ -524,26 +502,19 @@ bool loadLevel()
 
 
 
-
-// =============================================================================
-//  FEATURE 3 - Selecting and swapping (10 marks)               Owner: Bodla
-//  click selects with a ring, clicks outside the board ignored (3) |
-//  2nd click swaps with a NEIGHBOUR only, else selects the new candy (3) |
-//  a swap that makes no match is swapped back and uses no move (4)
-// =============================================================================
-// Turns a click in pixels into a row and column. Returns false if the click is
-// outside the board (x < 20 or >= 580, y < 100 or >= 660).
-void selecting_swapping(int x,int y,int board[8][8])
+//feature 3
+void selecting_swapping(int x, int y, int board[8][8])
 {
     int col;
     int row;
     int temp;
-    
+    // to keep in dimension
     if (x < BOARD_X || x >= BOARD_X + COLS * CELL ||
-    y < BOARD_Y || y >= BOARD_Y + ROWS * CELL)
+        y < BOARD_Y || y >= BOARD_Y + ROWS * CELL)
     {
         return;
     }
+    // to give exact row and col location of user click
     col = (x - BOARD_X) / CELL;
     row = (y - BOARD_Y) / CELL;
     if (selrow == -1 || selcol == -1)
@@ -585,11 +556,6 @@ void selecting_swapping(int x,int y,int board[8][8])
 
 
 }
-
-
-
-
-
 int findMatches(bool marked[ROWS][COLS])
 {
     for (int r = 0; r < ROWS; r++)
@@ -621,13 +587,7 @@ int findMatches(bool marked[ROWS][COLS])
 
 
 
-// =============================================================================
-//  FEATURE 5 - Clearing, falling and refilling (25 marks)      Owner: Ali
-//  marked candies removed, 10 points each (5) | candies fall in every column (8) |
-//  empty cells at the top refilled randomly (4) | chains repeat until no matches (8)
-// =============================================================================
-// Sets every marked cell to 0 (and gives points through addScore).
-void removecandies(int board[8][8],int&score, int marked[][8])
+void removecandies(int board[8][8], int& score, bool marked[][8])
 {
     int r, c;
     for (r = 0;r < 8;r++)
@@ -649,24 +609,7 @@ void removecandies(int board[8][8],int&score, int marked[][8])
 }
 
 
-// In every column, candies above gaps fall down.
-void dropCandies()
-{
-    for (int c = 0; c < COLS; c++)
-    {
-        int writeRow = ROWS - 1;
-        for (int r = ROWS - 1; r >= 0; r--)
-        {
-            if (board[r][c] != 0)
-            {
-                board[writeRow][c] = board[r][c];
-                if (writeRow != r)
-                    board[r][c] = 0;
-                writeRow--;
-            }
-        }
-    }
-}
+
 
 // Every cell still 0 at the top of a column gets a random candy 1..6.
 
@@ -729,7 +672,56 @@ void processMatches()
         matches = findMatches(marked);
     }
 }
+//feature 3
+void handleBoardClick(int px, int py)
+{
+    // ignore clicks outside the board
+    if (px < BOARD_X || px >= BOARD_X + COLS * CELL ||
+        py < BOARD_Y || py >= BOARD_Y + ROWS * CELL)
+        return;
 
+    int col = (int)((px - BOARD_X) / CELL);
+    int row = (int)((py - BOARD_Y) / CELL);
+
+    // first click: just select
+    if (selrow == -1)
+    {
+        selrow = row;
+        selcol = col;
+        return;
+    }
+
+    // second click not a neighbour: move the selection there
+    if (abs(row - selrow) + abs(col - selcol) != 1)
+    {
+        selrow = row;
+        selcol = col;
+        return;
+    }
+
+    // neighbour: swap
+    int temp = board[selrow][selcol];
+    board[selrow][selcol] = board[row][col];
+    board[row][col] = temp;
+
+    bool marked[ROWS][COLS];
+    if (findMatches(marked) == 0)
+    {
+        // no match: swap back, no move used
+        temp = board[selrow][selcol];
+        board[selrow][selcol] = board[row][col];
+        board[row][col] = temp;
+    }
+    else
+    {
+        useMove();
+        processMatches();
+        checkWinLose();
+    }
+
+    selrow = -1;
+    selcol = -1;
+}
 
 
 
@@ -742,20 +734,24 @@ void processMatches()
 // 10 points for every candy cleared, chains included.
 void addScore(int clearedCandies)
 {
-    // TODO
+    score += clearedCandies * 10;
 }
 
 // Called once for every swap that makes a match.
 void useMove()
 {
-    // TODO
+    if (movesleft > 0)
+        movesleft--;
 }
 
 // Called after a move AND all its chains are finished.
 // Target reached -> endGame(true). Else no moves left -> endGame(false).
 void checkWinLose()
 {
-    // TODO
+    if (score >= targetscore)
+        endGame(true);
+    else if (movesleft <= 0)
+        endGame(false);
 }
 
 
@@ -771,9 +767,9 @@ void checkWinLose()
 void startNewGame()
 {
     score = 0;
-    //loadLevel();
-    fillTestBoard();
-    selRow = -1;
+    loadLevel();
+
+    selrow = -1;
     selCol = -1;
     gameState = PLAYING;
 }
@@ -852,23 +848,69 @@ void endGame(bool won)
 // Format: line 1 = score movesLeft targetscore, then the 8 board rows (8 numbers each).
 void saveGame()
 {
-    // TODO
+    ofstream fout("savegame.txt");
+    if (!fout.is_open())
+    {
+        cout << "Cannot open savegame.txt" << endl;
+        return;
+    }
+
+    fout << score << " " << movesleft << " " << targetscore << endl;
+
+    for (int r = 0; r < 8;r++)
+    {
+        for (int c = 0;c < 8;c++)
+        {
+            fout << board[r][c] << " ";
+        }
+        fout << endl;
+    }
+
+
 }
 
 // Returns false if there is no saved game. Nothing is selected after loading.
 bool loadGame()
 {
-    // TODO
+    ifstream fin("savegame.txt");
+    if (!fin.is_open())
+    {
+        cout << "Cannot open savegame.txt" << endl;
+        return false;
+    }
+
+    while (fin >> score >> movesleft >> targetscore)
+    {
+        for (int r = 0; r < 8; r++)
+        {
+            for (int c = 0; c < 8; c++)
+            {
+                if (!(fin >> board[r][c]))
+                {
+                    cout << "Invalid format" << endl;
+                    return false;
+                }
+            }
+        }
+        selrow = -1;
+        selcol = -1;
+        return true;
+    }
+
     return false;
 }
 
-// Empties savegame.txt (open an ofstream and close it straight away).
+// Empties savegame.txt (open an ofstream and close it straight away)
 void clearSave()
 {
-    // TODO
+    ofstream fout("savegame.txt");
+    if (!fout.is_open())
+    {
+        cout << "Cannot open savegame.txt" << endl;
+        return;
+    }
+
 }
-
-
 
 
 // =============================================================================
