@@ -110,18 +110,15 @@ bool loadGame();                                            // Feature 8
 void clearSave();                                           // Feature 8
 
 
-<<<<<< < HEAD
-    ====== =
-    // TEMPORARY: only so you can see the drawing work before loadLevel exists.
-    // Delete this function (and its call in main) when Feature 2 is done.
-    void fillTestBoard()
+// TEMPORARY: only so you can see the drawing work before loadLevel exists.
+// Delete this function (and its call in main) when Feature 2 is done.
+void fillTestBoard()
 {
     for (int r = 0; r < ROWS; r++)
         for (int c = 0; c < COLS; c++)
             board[r][c] = (r * 3 + c * 2) % 6 + 1;
     score = 0; movesleftLeft = 20; targetscore = 800;
 }
->>>>>> > 0a18372cc0149140c457320a9d48d6073f1c89b6
 
 
 // =============================================================================
@@ -452,20 +449,16 @@ void drawGame(sf::RenderWindow& window)
 
 
 
-<<<<<<< HEAD
-    //feature 2
-    ====== =
 
-    // =============================================================================
-    //  FEATURE 2 - Board from level.txt (15 marks)                 Owner: Bodla
-    //  load level.txt into board (5) | drawn with nested loops (done, in drawBoard) |
-    //  every candy number has its own colour (done) | missing file shows an error (2)
-    // =============================================================================
-    // Reads rows/cols, then movesleft and target score, then the board into board[r][c].
-    // Returns false (and sets errorMessage) if level.txt cannot be opened.
-    // The starting board must not have three in a row anywhere.
-    >>>>>> > 0a18372cc0149140c457320a9d48d6073f1c89b6
-    bool loadLevel()
+// =============================================================================
+//  FEATURE 2 - Board from level.txt (15 marks)                 Owner: Bodla
+//  load level.txt into board (5) | drawn with nested loops (done, in drawBoard) |
+//  every candy number has its own colour (done) | missing file shows an error (2)
+// =============================================================================
+// Reads rows/cols, then movesleft and target score, then the board into board[r][c].
+// Returns false (and sets errorMessage) if level.txt cannot be opened.
+// The starting board must not have three in a row anywhere.
+bool loadLevel()
 {
 
     ifstream fin("level.txt");
@@ -531,29 +524,27 @@ void drawGame(sf::RenderWindow& window)
 
 
 
-//feature 3
-void selecting_swapping(int x, int y, int board[8][8])
+
+// =============================================================================
+//  FEATURE 3 - Selecting and swapping (10 marks)               Owner: Bodla
+//  click selects with a ring, clicks outside the board ignored (3) |
+//  2nd click swaps with a NEIGHBOUR only, else selects the new candy (3) |
+//  a swap that makes no match is swapped back and uses no move (4)
+// =============================================================================
+// Turns a click in pixels into a row and column. Returns false if the click is
+// outside the board (x < 20 or >= 580, y < 100 or >= 660).
+void selecting_swapping(int x,int y,int board[8][8])
 {
     int col;
     int row;
     int temp;
-    <<<<<< < HEAD
-        // to keep in dimension
-        if (x < BOARD_X || x >= BOARD_X + COLS * CELL ||
-            y < BOARD_Y || y >= BOARD_Y + ROWS * CELL)
-        {
-            return;
-        }
-    // to give exact row and col location of user click
-    ====== =
-
-        if (x < BOARD_X || x >= BOARD_X + COLS * CELL ||
-            y < BOARD_Y || y >= BOARD_Y + ROWS * CELL)
-        {
-            return;
-        }
-    >>>>>> > 0a18372cc0149140c457320a9d48d6073f1c89b6
-        col = (x - BOARD_X) / CELL;
+    
+    if (x < BOARD_X || x >= BOARD_X + COLS * CELL ||
+    y < BOARD_Y || y >= BOARD_Y + ROWS * CELL)
+    {
+        return;
+    }
+    col = (x - BOARD_X) / CELL;
     row = (y - BOARD_Y) / CELL;
     if (selrow == -1 || selcol == -1)
     {
@@ -630,7 +621,13 @@ int findMatches(bool marked[ROWS][COLS])
 
 
 
-void removecandies(int board[8][8], int& score, bool marked[][8])
+// =============================================================================
+//  FEATURE 5 - Clearing, falling and refilling (25 marks)      Owner: Ali
+//  marked candies removed, 10 points each (5) | candies fall in every column (8) |
+//  empty cells at the top refilled randomly (4) | chains repeat until no matches (8)
+// =============================================================================
+// Sets every marked cell to 0 (and gives points through addScore).
+void removecandies(int board[8][8],int&score, int marked[][8])
 {
     int r, c;
     for (r = 0;r < 8;r++)
@@ -652,11 +649,8 @@ void removecandies(int board[8][8], int& score, bool marked[][8])
 }
 
 
-<<<<<< < HEAD
-
-    ====== =
-    // In every column, candies above gaps fall down.
-    void dropCandies()
+// In every column, candies above gaps fall down.
+void dropCandies()
 {
     for (int c = 0; c < COLS; c++)
     {
@@ -673,7 +667,6 @@ void removecandies(int board[8][8], int& score, bool marked[][8])
         }
     }
 }
->>>>>> > 0a18372cc0149140c457320a9d48d6073f1c89b6
 
 // Every cell still 0 at the top of a column gets a random candy 1..6.
 
@@ -778,16 +771,10 @@ void checkWinLose()
 void startNewGame()
 {
     score = 0;
-    <<<<<< < HEAD
-        loadLevel();
-
-    selrow = -1;
-    ====== =
-        //loadLevel();
-        fillTestBoard();
+    //loadLevel();
+    fillTestBoard();
     selRow = -1;
-    >>>>>> > 0a18372cc0149140c457320a9d48d6073f1c89b6
-        selCol = -1;
+    selCol = -1;
     gameState = PLAYING;
 }
 
